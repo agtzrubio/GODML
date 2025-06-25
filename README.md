@@ -107,3 +107,16 @@ vim godml.yml
 
 # 4. Despliega
 godml deploy --env=staging
+
+---
+
+Este proyecto se encuentra bajo licencia Apache 2.0. ¡Contribuciones bienvenidas!
+---
+
+✅ **Próximos pasos recomendados:**
+- Agregar badges (versión, build passing, licencia).
+- Crear ejemplos en `examples/` con YAMLs reales.
+- Preparar logo o visual simple (si quieres, te genero uno tipo AWS-style).
+- Agregar sección de contribución y comunidad (`CONTRIBUTING.md` + `CODE_OF_CONDUCT.md`).
+
+¿Quieres que te genere eso también o prefieres ahora trabajar el `godml.yml` de ejemplo?
