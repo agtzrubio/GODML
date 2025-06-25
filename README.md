@@ -44,3 +44,66 @@ GODML propone una solución estructurada, modular y *cloud-native* que permite e
 
 GODML se compone de **3 capas principales**, pensadas para desplegarse en AWS, GCP o entornos híbridos:
 
+
+
+           ┌────────────────────────────┐
+           │     Observabilidad         │
+           │ Logs | Métricas | Tracing  │
+           └────────────────────────────┘
+                       ▲
+                       │
+           ┌────────────────────────────┐
+           │      Orquestación          │
+           │ DAGs | Pipelines | Events  │
+           └────────────────────────────┘
+                       ▲
+                       │
+           ┌────────────────────────────┐
+           │    Declarative ML Layer    │
+           │ YAMLs | Infra as Code | CI │
+           └────────────────────────────┘
+
+
+
+🔁 Integración con:
+- Step Functions / Vertex Pipelines
+- Terraform / CDK / Pulumi
+- MLflow, SageMaker, Bedrock, Vertex AI
+- Prometheus, CloudWatch, Grafana, Datadog
+
+---
+
+## 🧪 Casos de Uso Típicos
+
+- Auditoría completa de un modelo de predicción de churn bancario.
+- Pipeline de ML en salud con cumplimiento normativo (HIPAA).
+- Sistema de recomendaciones con detección automática de drift.
+- Automatización de retraining cuando el MSE excede umbral.
+
+---
+
+## 🧩 Componentes Principales
+
+| Componente          | Descripción                                                                 |
+|---------------------|-----------------------------------------------------------------------------|
+| `godml-core`        | API principal para definir y versionar modelos declarativamente             |
+| `godml-observe`     | Módulo de observabilidad (integración con Prometheus, CloudWatch, etc.)     |
+| `godml-governance`  | Trazabilidad, metadata, reglas de cumplimiento y validación de pipelines     |
+| `godml-cli`         | Interfaz de línea de comandos para bootstrap, validación y despliegue       |
+
+---
+
+## 🚀 Cómo Empezar
+
+```bash
+# 1. Instala el CLI
+pip install godml
+
+# 2. Inicializa un proyecto
+godml init my-churn-project
+
+# 3. Declara tu pipeline
+vim godml.yml
+
+# 4. Despliega
+godml deploy --env=staging
