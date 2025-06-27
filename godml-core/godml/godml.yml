@@ -1,0 +1,29 @@
+name: churn-prediction
+version: 1.0.0
+provider: mlflow # ← cambia aquí
+
+dataset:
+  uri: ./data/churn.csv # Puedes poner un path local (o usar un fixture si estás probando)
+  hash: auto
+
+model:
+  type: xgboost
+  hyperparameters:
+    max_depth: 5
+    eta: 0.3
+    objective: binary:logistic
+    eval_metric: auc
+
+metrics:
+- name: AUC
+  threshold: 0.85
+
+governance:
+  owner: data-team@empresa.com
+  tags:
+  - compliance: gdpr
+  - project: retention
+
+deploy:
+  realtime: false
+  batch_output: ./outputs/churn_predictions.csv

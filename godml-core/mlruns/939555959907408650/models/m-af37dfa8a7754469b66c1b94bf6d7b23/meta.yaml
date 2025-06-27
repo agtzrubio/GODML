@@ -1,0 +1,10 @@
+artifact_location: file:///C:/Users/artgu/Documents/GODML/godml-core/mlruns/939555959907408650/models/m-af37dfa8a7754469b66c1b94bf6d7b23/artifacts
+creation_timestamp: 1750917759026
+experiment_id: '939555959907408650'
+last_updated_timestamp: 1750917762073
+model_id: m-af37dfa8a7754469b66c1b94bf6d7b23
+model_type: null
+name: model
+source_run_id: b30e3217a01a4734a75123f2f4831dba
+status: 2
+status_message: null
