@@ -1,0 +1,35 @@
+artifact_path: file:///C:/Users/artgu/Documents/GODML/godml-core/mlruns/939555959907408650/models/m-bef2def1d3b24b318412d7b5b0ebd8ad/artifacts
+flavors:
+  python_function:
+    data: model.xgb
+    env:
+      conda: conda.yaml
+      virtualenv: python_env.yaml
+    loader_module: mlflow.xgboost
+    python_version: 3.11.9
+  xgboost:
+    code: null
+    data: model.xgb
+    model_class: xgboost.core.Booster
+    model_format: xgb
+    xgb_version: 3.0.2
+is_signature_from_type_hint: false
+mlflow_version: 3.1.1
+model_id: m-bef2def1d3b24b318412d7b5b0ebd8ad
+model_size_bytes: 80822
+model_uuid: m-bef2def1d3b24b318412d7b5b0ebd8ad
+prompts: null
+run_id: 517ffce71250469f9af6394de5c741cb
+saved_input_example_info:
+  artifact_path: input_example.json
+  pandas_orient: split
+  serving_input_path: serving_input_example.json
+  type: dataframe
+signature:
+  inputs: '[{"type": "double", "name": "monthly_charges", "required": true}, {"type":
+    "long", "name": "tenure", "required": true}, {"type": "long", "name": "contract_type",
+    "required": true}, {"type": "long", "name": "support_calls", "required": true}]'
+  outputs: '[{"type": "tensor", "tensor-spec": {"dtype": "float32", "shape": [-1]}}]'
+  params: null
+type_hint_from_example: false
+utc_time_created: '2025-06-26 06:33:28.692783'

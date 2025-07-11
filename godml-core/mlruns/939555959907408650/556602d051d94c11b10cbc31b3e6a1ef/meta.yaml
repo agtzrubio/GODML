@@ -1,0 +1,14 @@
+artifact_uri: file:///C:/Users/artgu/Documents/GODML/godml-core/mlruns/939555959907408650/556602d051d94c11b10cbc31b3e6a1ef/artifacts
+end_time: 1750918431168
+entry_point_name: ''
+experiment_id: '939555959907408650'
+lifecycle_stage: active
+run_id: 556602d051d94c11b10cbc31b3e6a1ef
+run_name: churn-prediction
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1750918427991
+status: 3
+tags: []
+user_id: artgu
