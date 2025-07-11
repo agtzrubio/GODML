@@ -1,0 +1,44 @@
+from typing import List, Optional, Dict
+from pydantic import BaseModel, Field
+
+class DatasetConfig(BaseModel):
+    uri: str
+    hash: Optional[str] = "auto"
+
+class Hyperparameters(BaseModel):
+    max_depth: Optional[int] = None
+    eta: Optional[float] = None  # ← ahora opcional
+    objective: Optional[str] = None  # ← ahora opcional
+    n_estimators: Optional[int] = None
+    max_features: Optional[str] = None
+    random_state: Optional[int] = None
+
+class ModelConfig(BaseModel):
+    type: str
+    hyperparameters: Hyperparameters
+
+class Metric(BaseModel):
+    name: str
+    threshold: float
+
+class GovernanceTag(BaseModel):
+    compliance: Optional[str]
+    project: Optional[str]
+
+class Governance(BaseModel):
+    owner: str
+    tags: Optional[List[Dict[str, str]]] = []
+
+class DeployConfig(BaseModel):
+    realtime: bool = False
+    batch_output: Optional[str]
+
+class PipelineDefinition(BaseModel):
+    name: str
+    version: str
+    provider: str
+    dataset: DatasetConfig
+    model: ModelConfig
+    metrics: List[Metric]
+    governance: Governance
+    deploy: DeployConfig

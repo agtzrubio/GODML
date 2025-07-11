@@ -1,0 +1,38 @@
+name: random-forest-tst2-rf
+version: 1.0.0
+provider: mlflow
+
+dataset:
+  uri: ./data/churn.csv
+  hash: auto
+
+model:
+  type: random_forest
+  hyperparameters:
+    n_estimators: 100
+    max_depth: 5
+    max_features: sqrt
+    random_state: 42
+
+metrics:
+- name: auc
+  threshold: 0.85
+- name: accuracy
+  threshold: 0.80
+- name: precision
+  threshold: 0.75
+- name: recall
+  threshold: 0.70
+- name: f1
+  threshold: 0.75
+
+governance:
+  owner: data-team@empresa.com
+  tags:
+  - compliance: gdpr
+  - compliance: hipaa
+  - project: retention
+
+deploy:
+  realtime: false
+  batch_output: ./outputs/churn_predictions_rf.csv
