@@ -1,10 +1,12 @@
 from godml.core.parser import load_pipeline
 from godml.core.executors import get_executor
 from godml.core.models import PipelineDefinition
+from .utils.model_storage import save_model_to_structure, load_model_from_structure
 
 class GodmlNotebook:
     def __init__(self):
         self.pipeline = None
+        self.last_trained_model = None
     
     def create_pipeline(self, name: str, model_type: str, hyperparameters: dict, 
                        dataset_path: str, output_path: str = None):
@@ -41,8 +43,22 @@ class GodmlNotebook:
             raise ValueError("Primero crea un pipeline")
         
         executor = get_executor(self.pipeline.provider)
-        executor.run(self.pipeline)
+        result = executor.run(self.pipeline)
+        # TODO: Capturar el modelo entrenado del executor
+        # self.last_trained_model = result.model
         return "✅ Entrenamiento completado"
+    
+    def save_model(self, model=None, model_name: str = None, environment: str = "experiments"):
+        """Guardar modelo en estructura organizada"""
+        model_to_save = model or self.last_trained_model
+        if model_to_save is None:
+            raise ValueError("No hay modelo para guardar. Entrena un modelo primero o proporciona uno.")
+        
+        return save_model_to_structure(model_to_save, model_name, environment)
+    
+    def load_model(self, model_name: str, environment: str = "production"):
+        """Cargar modelo desde estructura"""
+        return load_model_from_structure(model_name, environment)
 
 def quick_train(model_type: str, hyperparameters: dict, dataset_path: str, name: str = None):
     """Función rápida para entrenar un modelo"""

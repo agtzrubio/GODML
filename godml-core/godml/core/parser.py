@@ -1,3 +1,6 @@
+# Copyright (c) 2024 Arturo Gutierrez Rubio Rojas
+# Licensed under the MIT License
+
 import yaml
 from pathlib import Path
 from godml.core.models import PipelineDefinition
