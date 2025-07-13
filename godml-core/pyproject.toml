@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "godml"
-version = "0.1.3"
+version = "0.1.4"
 description = "Governed, Observable & Declarative Machine Learning Framework"
 readme = {file = "README.md", content-type = "text/markdown"}
 requires-python = ">=3.8"
