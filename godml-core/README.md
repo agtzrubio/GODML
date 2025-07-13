@@ -1,118 +1,175 @@
-# GODML – Governed, Observable & Declarative Machine Learning
+**Proyecto GODML - Machine Learning con Gobernanza**
 
-godml-core/
-├── godml/
-│   ├── __init__.py
-|   ├── godml_cli.py
-|   ├── godml.yml
-│   ├── core/
-|   |   ├── executors.py
-│   │   ├── parser.py            # Carga y validación de YAMLs
-│   │   ├── models.py            # Esquemas internos (dataclasses / Pydantic)
-│   │   ├── engine.py            # Orquestador local de ejecución (base class)
-│   │   └── validators.py        # Reglas de gobernanza y validaciones
-│   ├── providers/
-|   |   ├── mlflow.py
-│   │   ├── __init__.py
-│   │   ├── sagemaker.py         # Implementación provider AWS
-│   │   └── vertex.py            # Implementación provider GCP
-│   └── utils/
-│       ├── logger.py            # Logger estructurado
-│       └── hash.py              # Hash para datasets y modelos
-├── pyproject.toml               # Configuración de build
-├── README.md                    # Docs internas del core
-└── tests/
-    └── test_parser.py
+[![GODML](https://img.shields.io/badge/Powered%20by-GODML-blue.svg)](https://pypi.org/project/godml/)
+[![Python 3.8+](https://img.shields.io/badge/python-3.8+-blue.svg)](https://www.python.org/downloads/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-
-> **GODML** es un framework de MLOps que unifica la gobernanza, la observabilidad y la implementación declarativa de modelos de Machine Learning en producción. Diseñado para que no solo quieren que su modelo funcione, sino también *entender por qué funciona, cuándo dejará de hacerlo y cómo mantener el control*.
+> Proyecto de Machine Learning generado automáticamente con **GODML Framework** - Governed, Observable & Declarative ML
 
 ---
 
-## 📌 Índice
+## ⚡ Quick Start
 
-1. [Visión General](#visión-general)
-2. [Problemas que Resuelve](#problemas-que-resuelve)
-3. [Arquitectura del Framework](#arquitectura-del-framework)
-4. [Casos de Uso Típicos](#casos-de-uso-típicos)
-5. [Componentes Principales](#componentes-principales)
-6. [Cómo Empezar](#cómo-empezar)
-7. [Roadmap](#roadmap)
-#8. [Licencia](#licencia)
+```bash
+# Instalar dependencias
+pip install -r requirements.txt
 
----
+# Entrenar modelo
+godml run -f godml.yml
 
-## 🎯 Visión General
+# Ver experimentos en MLflow
+mlflow ui
+                
+🎯 ¿Qué es este proyecto?
+Este proyecto fue generado con GODML , un framework que unifica:
 
-GODML nace como respuesta a una realidad que muchas empresas enfrentan hoy:
+Gobernanza : Trazabilidad y metadatos automáticos
 
-- Modelos en producción sin trazabilidad.
-- Decisiones de IA que no se pueden explicar.
-- Retrainings manuales sin control de versiones ni validaciones.
-- Observabilidad fragmentada y pobre integración con herramientas de DevOps.
+Observabilidad : Tracking completo con MLflow
 
-GODML propone una solución estructurada, modular y *cloud-native* que permite escalar proyectos de ML sin perder gobernanza, transparencia ni capacidad de auditoría.
+Declarativo : Configuración simple en YAML
 
----
-
-## ❗ Problemas que Resuelve
-
-- 🔍 **¿Quién entrenó este modelo?** → Metadata con versionado y tracking automático.
-- 📦 **¿Qué datos usó?** → Trazabilidad completa de datasets (con hashes y linaje).
-- 🧠 **¿Por qué está tomando esta decisión?** → Explicabilidad integrada.
-- 📊 **¿Está cumpliendo normativas (GDPR, HIPAA, etc.)?** → Logging estructurado y cumplimiento por diseño.
-- 🛠️ **¿Qué pasa cuando el modelo degrada?** → Monitoreo de métricas + triggers automáticos para retraining o alertas.
-
----
-
-## 🧱 Arquitectura del Framework
-
-GODML se compone de **3 capas principales**, pensadas para desplegarse en AWS, GCP o entornos híbridos:
-
-           ┌────────────────────────────┐
-           │     Observabilidad         │
-           │ Logs | Métricas | Tracing  │
-           └────────────────────────────┘
-                       ▲
-                       │
-           ┌────────────────────────────┐
-           │      Orquestación          │
-           │ DAGs | Pipelines | Events  │
-           └────────────────────────────┘
-                       ▲
-                       │
-           ┌─────────────────────────────┐
-           │    Declarative ML Layer     │
-           │ YAMLs | Infra as Code | CLI │
-           └─────────────────────────────┘
+📁 Estructura del Proyecto
+                
+{project_name}/
+├── godml.yml              # 🎯 Configuración principal del pipeline
+├── data/                  # 📊 Datasets
+│   └── your_dataset.csv   # ← Coloca aquí tus datos
+├── outputs/               # 📈 Predicciones y resultados
+│   └── predictions.csv    # Salida del modelo
+├── models/                # 🤖 Modelos entrenados
+│   ├── production/        # Modelos en producción
+│   ├── staging/           # Modelos en testing
+│   └── experiments/       # Modelos experimentales
+├── mlruns/                # 📋 Experimentos MLflow (auto-generado)
+├── requirements.txt       # 📦 Dependencias del proyecto
+└── README.md             # 📖 Esta documentación
 
 
-🔁 Integración con:
-- Step Functions / Vertex Pipelines
-- Terraform / CDK / CloudFormation
-- MLflow, SageMaker, Vertex AI
-- CloudWatch, Grafana
+⚙️ Configuración del Pipeline
+El archivo godml.yml contiene toda la configuración:
 
----
+Dataset
 
-## 🧪 Casos de Uso Típicos
+dataset:
+  uri: ./data/your_dataset.csv  # ← Cambia por tu archivo
+  hash: auto                    # Hash automático para trazabilidad
 
-- Auditoría completa de un modelo de predicción.
-- Pipeline de ML en salud con cumplimiento normativo (HIPAA).
-- Sistema de recomendaciones con detección automática de drift.
-- Automatización de retraining cuando el MSE excede umbral.
+Modelo
 
----
+model:
+  type: xgboost                 # Algoritmo a usar
+  hyperparameters:              # Parámetros del modelo
+    max_depth: 5
+    eta: 0.3
+    objective: binary:logistic
 
-## 🧩 Componentes Principales
+Métricas de Calidad
 
-| Componente          | Descripción                                                                 |
-|---------------------|-----------------------------------------------------------------------------|
-| `godml-core`        | API principal para definir y versionar modelos declarativamente             |
-| `godml-observe`     | Módulo de observabilidad (integración con Prometheus, CloudWatch, etc.)     |
-| `godml-governance`  | Trazabilidad, metadata, reglas de cumplimiento y validación de pipelines    |
-| `godml-cli`         | Interfaz de línea de comandos para bootstrap, validación y despliegue       |
+metrics:
+- name: auc
+  threshold: 0.85              # Umbral mínimo de calidad
+- name: accuracy
+  threshold: 0.80
 
+Gobernanza
+
+governance:
+  owner: your-team@company.com  # ← Cambia por tu email
+  tags:
+  - project: {project_name}
+  - environment: development    # development/staging/production
+
+🔧 Modelos Disponibles
+Algoritmo	Tipo	Comando
+xgboost	Gradient Boosting	Por defecto
+random_forest	Ensemble	Cambiar en model.type
+lightgbm	Gradient Boosting	Cambiar en model.type
+
+📊 Métricas Soportadas
+
+auc - Area Under Curve
+
+accuracy - Precisión
+
+precision - Precisión por clase
+
+recall - Recall por clase
+
+f1 - F1 Score
+
+🎯 Flujo de Trabajo
+
+1. Preparar Datos
+
+# Coloca tu dataset en data/
+cp mi_dataset.csv data/your_dataset.csv
+
+2. Configurar Pipeline
+
+# Edita godml.yml según tus necesidades
+vim godml.yml
+
+3. Entrenar Modelo
+
+# Ejecuta el pipeline completo
+godml run -f godml.yml
+
+4. Revisar Resultados
+
+# Ver experimentos en MLflow
+mlflow ui
+
+# Ver predicciones
+cat outputs/predictions.csv
+
+🏛️ Gobernanza y Trazabilidad
+GODML automáticamente registra:
+
+✅ Hash del dataset para trazabilidad
+
+✅ Metadatos del modelo (parámetros, métricas)
+
+✅ Información de gobernanza (owner, tags)
+
+✅ Timestamp y versión de cada experimento
+
+✅ Linaje completo del pipeline
+
+🚀 Próximos Pasos
+Agregar tus datos: Coloca tu dataset en data/
+
+Personalizar configuración: Edita godml.yml
+
+Entrenar modelo: Ejecuta godml run -f godml.yml
+
+Monitorear: Revisa resultados en MLflow UI
+
+Iterar: Ajusta parámetros y vuelve a entrenar
+
+📚 Recursos Útiles
+📦 GODML en PyPI
+
+📖 Documentación GODML
+
+🎯 Configuración YAML
+
+🏛️ Guía de Gobernanza
+
+🤝 Soporte
+¿Necesitas ayuda?
+
+🐛 Reportar Issues
+
+💬 Discusiones
+
+📧 Contacto
+
+📄 Licencia
+Este proyecto está bajo la licencia MIT. Ver LICENSE para más detalles.
+
+Generado con ❤️ por GODML Framework v0.1.2
+Governed, Observable & Declarative Machine Learning
 ---
 
 ## 🚀 Cómo Empezar
@@ -120,10 +177,6 @@ GODML se compone de **3 capas principales**, pensadas para desplegarse en AWS, G
 ```bash
 # 1. Instala el CLI
 pip install godml
-
-# 2. Install WHL
-
-pip install godml-0.1.0-py3-none-any.whl
 
 # 2. Inicializa un proyecto
 godml init my-churn-project
@@ -133,4 +186,3 @@ vim godml.yml
 
 # 4. run
 godml run -f godml.yml
-
