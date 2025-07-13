@@ -1,3 +1,6 @@
+# Copyright (c) 2024 Arturo Gutierrez Rubio Rojas
+# Licensed under the MIT License
+
 import logging
 import sys
 import os
