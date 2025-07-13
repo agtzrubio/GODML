@@ -121,73 +121,16 @@ GODML se compone de **3 capas principales**, pensadas para desplegarse en AWS, G
 # 1. Instala el CLI
 pip install godml
 
+# 2. Install WHL
+
+pip install godml-0.1.0-py3-none-any.whl
+
 # 2. Inicializa un proyecto
 godml init my-churn-project
 
 # 3. Declara tu pipeline
 vim godml.yml
 
-# 4. Despliega
-godml deploy --env=staging
-
-
-
-source venv/Scripts/activate
-
-pip install -r requirements.txt
-
-python -m godml.godml_cli run --file "godml/godml.yml"
-
-
-mlflow ui --backend-store-uri ./mlruns
-
----
-
-
-
-model:
-  type: random_forest
-  hyperparameters:
-    n_estimators: 100
-    max_depth: 5
-    max_features: sqrt
-    random_state: 42
-
-model:
-  type: xgboost  # ✅ esto debe coincidir con el nombre del archivo: xgboost_model.py
-  hyperparameters:
-    eta: 0.3
-    max_depth: 5
-    objective: binary:logistic
-    eval_metric: logloss
-    random_state: 42
-
-
-modificacion de pyproject y requirements
-
-pip install build
-python -m build
-
-# Verificar que el comando está disponible
-godml --help
-
-pip install godml-0.1.0-py3-none-any.whl
-godml init test-project
-cd test-project
-python -m godml.godml_cli run --file "godml/godml.yml"
+# 4. run
 godml run -f godml.yml
 
-
-
-pip uninstall godml -y
-pip uninstall -y -r requirements.txt
-
-
-✅ **Próximos pasos recomendados:**
-- Agregar badges (versión, build passing, licencia).
-- Crear ejemplos en `examples/` con YAMLs reales.
-- Preparar logo o visual simple (si quieres, te genero uno tipo AWS-style).
-- Agregar sección de contribución y comunidad (`CONTRIBUTING.md` + `CODE_OF_CONDUCT.md`).
-
-#importante !!!!!
-Es parte de la estructura estándar de MLOps para separar datos, código y resultados.
