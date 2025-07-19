@@ -1,5 +1,7 @@
-from sklearn.ensemble import RandomForestClassifier
 from typing import Dict
+from sklearn.ensemble import RandomForestClassifier
+from godml.core.metrics import evaluate_binary_classification
+
 
 # Solo los hiperparámetros válidos de RandomForest
 ALLOWED_PARAMS = {
@@ -16,7 +18,9 @@ def train_model(X_train, y_train, X_test, y_test, params: Dict):
     clf = RandomForestClassifier(**valid_params)
     clf.fit(X_train, y_train)
     
-    preds = clf.predict_proba(X_test)[:, 1]
+    preds = clf.predict_proba(X_test)[:, 1]    
+    metrics = evaluate_binary_classification(y_test, preds)
     
-    return clf, preds
+    return clf, preds, metrics
+
 

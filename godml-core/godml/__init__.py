@@ -1,5 +1,17 @@
 # Copyright (c) 2024 Arturo Gutierrez Rubio Rojas
 # Licensed under the MIT License
+import os
+import warnings
+
+# 🔇 Supre logs de TensorFlow antes de importarlo
+os.environ["TF_CPP_MIN_LOG_LEVEL"] = "3"
+os.environ["TF_ENABLE_ONEDNN_OPTS"] = "0"
+
+warnings.filterwarnings("ignore", category=UserWarning)
+warnings.filterwarnings("ignore", category=FutureWarning)
+warnings.filterwarnings("ignore", category=DeprecationWarning)
+
+#--------------------------------------------------------------------------------#
 
 from .notebook_api import GodmlNotebook, quick_train, train_from_yaml, quick_train_yaml
 from .core.parser import load_pipeline
@@ -25,3 +37,4 @@ __all__ = [
     "promote_model"
 ]
 
+print("✅ godml/__init__.py cargado y logs silenciados")

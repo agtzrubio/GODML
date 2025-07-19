@@ -3,6 +3,9 @@
 
 from godml.providers.mlflow import MLflowExecutor
 from godml.providers.sagemaker import SageMakerExecutor
+from godml.utils.logger import get_logger
+
+logger = get_logger()
 
 _providers_map = {
     "mlflow": MLflowExecutor,

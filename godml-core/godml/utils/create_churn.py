@@ -1,18 +1,19 @@
 import pandas as pd
 import numpy as np
+import os
 
 np.random.seed(42)
 n = 1000
 
-# Generar features con correlación con target
+# Generar features
 data = pd.DataFrame({
-    "monthly_charges": np.random.normal(70, 20, n),     # cargos mensuales
-    "tenure": np.random.randint(1, 72, n),              # meses como cliente
-    "contract_type": np.random.choice([0, 1], n),       # 0 = mes a mes, 1 = contrato anual
-    "support_calls": np.random.poisson(1.5, n),         # llamadas al soporte
+    "monthly_charges": np.random.normal(70, 20, n),
+    "tenure": np.random.randint(1, 72, n),
+    "contract_type": np.random.choice([0, 1], n),
+    "support_calls": np.random.poisson(1.5, n),
 })
 
-# Variable objetivo: churn = 1 si baja tenure + alto support_calls + bajo contrato anual
+# Generar target
 data["target"] = (
     (data["tenure"] < 12).astype(int) +
     (data["support_calls"] > 2).astype(int) +
@@ -20,6 +21,11 @@ data["target"] = (
 ) >= 2
 data["target"] = data["target"].astype(int)
 
-# Guardar a CSV
-data.to_csv("./df/churn.csv", index=False)
-print("Dataset churn.csv creado con éxito.")
+# Crear carpeta si no existe
+output_path = "./data/churn.csv"
+os.makedirs(os.path.dirname(output_path), exist_ok=True)
+
+# Guardar CSV
+data.to_csv(output_path, index=False)
+print(f"✅ Dataset generado: {output_path}")
+

@@ -1,17 +1,19 @@
 # Copyright (c) 2024 Arturo Gutierrez Rubio Rojas
 # Licensed under the MIT License
 
-import os
 import typer
 import shutil
 from pathlib import Path
 from godml.core.parser import load_pipeline
 from godml.core.executors import get_executor
 from godml.utils.logger import get_logger
+from godml.utils.path_utils import normalize_path
 
 logger = get_logger()
 
 app = typer.Typer()
+
+from godml.utils.path_utils import normalize_path
 
 @app.command()
 def run(file: str = typer.Option(..., "--file", "-f", help="Ruta al archivo YAML")):
@@ -19,18 +21,31 @@ def run(file: str = typer.Option(..., "--file", "-f", help="Ruta al archivo YAML
     Ejecuta un pipeline GODML desde un archivo YAML.
     """
     try:
-        pipeline = load_pipeline(file)
+        yaml_path = normalize_path(file)
+        print(f"📄 Usando archivo YAML: {yaml_path}")
+
+        pipeline = load_pipeline(yaml_path)
+
+        # Normalizar paths dentro del pipeline
+        pipeline.dataset.uri = normalize_path(pipeline.dataset.uri)
+        if hasattr(pipeline.deploy, "batch_output"):
+            pipeline.deploy.batch_output = normalize_path(pipeline.deploy.batch_output)
+
+        print(f"📂 Dataset: {pipeline.dataset.uri}")
+        print(f"📤 Output: {pipeline.deploy.batch_output}")
+
         executor = get_executor(pipeline.provider)
         executor.validate(pipeline)
         result = executor.run(pipeline)
-        
+
         if result is False:
             logger.error("❌ Entrenamiento fallido")
             raise typer.Exit(1)
-            
+
     except Exception as e:
         logger.error(f"❌ Error: {str(e)}")
         raise typer.Exit(1)
+
 
 @app.command()
 def init(project_name: str):
@@ -38,7 +53,7 @@ def init(project_name: str):
     Inicializa un nuevo proyecto GODML.
     """
     logger.info(f"🚀 Inicializando proyecto GODML: {project_name}")
- 
+
     
     # Crear estructura de directorios
     project_path = Path(project_name)

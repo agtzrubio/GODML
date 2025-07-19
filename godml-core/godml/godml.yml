@@ -7,11 +7,12 @@ dataset:
   hash: auto
 
 model:
-  type: random_forest
+  type: xgboost  # ✅ esto debe coincidir con el nombre del archivo: xgboost_model.py
   hyperparameters:
-    n_estimators: 100
+    eta: 0.3
     max_depth: 5
-    max_features: sqrt
+    objective: binary:logistic
+    eval_metric: logloss
     random_state: 42
 
 metrics:

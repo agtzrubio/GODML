@@ -1,6 +1,6 @@
-artifact_location: file:///C:/Users/artgu/Documents/GODML/godml-core/mlruns/0
-creation_time: 1750916970341
+artifact_location: file:///home/super-user/Documents/GODML/GODML/godml-core/mlruns/0
+creation_time: 1752959904007
 experiment_id: '0'
-last_update_time: 1750916970341
+last_update_time: 1752959904007
 lifecycle_stage: active
 name: Default

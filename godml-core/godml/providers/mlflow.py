@@ -9,18 +9,30 @@ from sklearn.metrics import roc_auc_score
 import xgboost as xgb
 import os
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from godml.core.metrics import evaluate_binary_classification
 import importlib
 from godml.utils.log_model_generic import log_model_generic
 from xgboost import Booster as XGBBooster
 from godml.utils.predict_safely import predict_safely
 from godml.utils.logger import get_logger
+from godml.utils.path_utils import normalize_path
+
 
 logger = get_logger()
 
 class MLflowExecutor(BaseExecutor):
     def __init__(self, tracking_uri: str = None):
         if tracking_uri:
+            # Detectar URI local tipo Windows
+            if tracking_uri.startswith("file:/"):
+                local_path = tracking_uri.replace("file:/", "", 1)
+                normalized = normalize_path(local_path)
+                tracking_uri = f"file://{normalized}"
             mlflow.set_tracking_uri(tracking_uri)
+        else:
+            # Fallback seguro
+            mlflow.set_tracking_uri("file:./mlruns")
+
         mlflow.set_experiment("godml-experiment")
 
     def preprocess_for_xgboost(self, df, target_col="target"):
@@ -77,28 +89,16 @@ class MLflowExecutor(BaseExecutor):
                 module_path = f"godml.core.models_registry.{model_type}_model"
                 model_module = importlib.import_module(module_path)
 
-                booster, preds = model_module.train_model(X_train, y_train, X_test, y_test, params)
-                
+                booster, preds, metrics = model_module.train_model(X_train, y_train, X_test, y_test, params)
+
                 input_example = X_train.iloc[:5]
                 output_example = predict_safely(booster, input_example)
 
                 signature = mlflow.models.signature.infer_signature(input_example, output_example)
 
-                log_model_generic(
-                    booster,
-                    model_name="model",
-                    registered_model_name=f"{pipeline.name}-{pipeline.model.type}"
-                )
-
                 y_pred_binary = (preds >= 0.5).astype(int)
 
-                metrics_dict = {
-                    "auc": roc_auc_score(y_test, preds),
-                    "accuracy": accuracy_score(y_test, y_pred_binary),
-                    "precision": precision_score(y_test, y_pred_binary, zero_division=0),
-                    "recall": recall_score(y_test, y_pred_binary, zero_division=0),
-                    "f1": f1_score(y_test, y_pred_binary, zero_division=0),
-                }
+                metrics_dict = evaluate_binary_classification(y_test, preds)
 
                 for metric_name, value in metrics_dict.items():
                     mlflow.log_metric(metric_name, value)
@@ -122,11 +122,21 @@ class MLflowExecutor(BaseExecutor):
                         all_metrics_passed = False
 
                 if all_metrics_passed:
+                    log_model_generic(
+                        booster,
+                        model_name="model",
+                        registered_model_name=f"{pipeline.name}-{pipeline.model.type}",
+                        input_example=input_example,
+                        signature=signature
+                    )
+
                     if pipeline.deploy.batch_output:
-                        os.makedirs(os.path.dirname(pipeline.deploy.batch_output), exist_ok=True)
-                        pd.DataFrame({"prediction": preds}).to_csv(pipeline.deploy.batch_output, index=False)
-                        logger.info(f"📦 Predicciones guardadas en: {pipeline.deploy.batch_output}")
+                        output_path = os.path.abspath(pipeline.deploy.batch_output)
+                        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+                        pd.DataFrame({"prediction": preds}).to_csv(output_path, index=False)
+                        logger.info(f"📦 Predicciones guardadas en: {output_path}")
                     break
+                
                 elif attempt < max_attempts - 1:
                     logger.warning(f"🔁 Reentrenando... (intento {attempt + 2}/{max_attempts})")
                 else:
@@ -135,7 +145,8 @@ class MLflowExecutor(BaseExecutor):
                     logger.info("   - Ajusta los thresholds en godml.yml")
                     logger.info("   - Mejora la calidad del dataset")
                     logger.info("   - Prueba otros hiperparámetros")
-                    return False  # En lugar de raise ValueError
+                    return False
+
 
     def validate(self, pipeline: PipelineDefinition):
         from godml.core.validators import validate_pipeline

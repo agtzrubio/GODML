@@ -1,7 +1,0 @@
-aliases: {}
-creation_timestamp: 1750918431115
-deployment_job_id: null
-deployment_job_state: null
-description: null
-last_updated_timestamp: 1751064349053
-name: churn-xgboost-godml
