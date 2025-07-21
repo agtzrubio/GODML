@@ -9,8 +9,8 @@ import warnings
 def setup_clean_logging():
     """Configurar logging limpio sin warnings molestos"""
     # Suprimir warnings de TensorFlow y otros
-    os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
-    os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
+    #os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+    #os.environ['TF_ENABLE_ONEDNN_OPTS'] = '0'
     
     # Suprimir warnings específicos
     warnings.filterwarnings("ignore", category=UserWarning)
