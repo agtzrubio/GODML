@@ -1,36 +1,34 @@
+# Copyright (c) 2024 Arturo Gutierrez Rubio Rojas
+# Licensed under the MIT License
+
+import os
 import mlflow
-import mlflow.xgboost
-from godml.core.engine import BaseExecutor
-from sklearn.base import BaseEstimator
-from godml.core.models import PipelineDefinition
 import pandas as pd
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import roc_auc_score
-import xgboost as xgb
-import os
-from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
-from godml.core.metrics import evaluate_binary_classification
-import importlib
-from godml.utils.log_model_generic import log_model_generic
-from xgboost import Booster as XGBBooster
-from godml.utils.predict_safely import predict_safely
+
+from godml.core.engine import BaseExecutor
+from godml.core.models import PipelineDefinition
+from godml.core.executor.model_loader import load_custom_model_class
 from godml.utils.logger import get_logger
 from godml.utils.path_utils import normalize_path
-
+from godml.utils.predict_safely import predict_safely
+from godml.utils.log_model_generic import log_model_generic
+from godml.core.metrics import evaluate_binary_classification
+from godml.core.models import ModelResult
+import mlflow.models.signature
 
 logger = get_logger()
+
 
 class MLflowExecutor(BaseExecutor):
     def __init__(self, tracking_uri: str = None):
         if tracking_uri:
-            # Detectar URI local tipo Windows
             if tracking_uri.startswith("file:/"):
                 local_path = tracking_uri.replace("file:/", "", 1)
                 normalized = normalize_path(local_path)
                 tracking_uri = f"file://{normalized}"
             mlflow.set_tracking_uri(tracking_uri)
         else:
-            # Fallback seguro
             mlflow.set_tracking_uri("file:./mlruns")
 
         mlflow.set_experiment("godml-experiment")
@@ -63,7 +61,9 @@ class MLflowExecutor(BaseExecutor):
             X, y, test_size=max(0.5, 2 / len(X)), random_state=42, stratify=y
         )
 
-        params = pipeline.model.hyperparameters.dict()
+        params = pipeline.model.hyperparameters.model_dump(exclude_none=True)
+        model_type = pipeline.model.type.lower()
+        project_path = os.getcwd()
 
         max_attempts = 3
         for attempt in range(max_attempts):
@@ -85,19 +85,21 @@ class MLflowExecutor(BaseExecutor):
                 for param_name, param_value in params.items():
                     mlflow.log_param(param_name, param_value)
 
-                model_type = pipeline.model.type.lower()
-                module_path = f"godml.core.models_registry.{model_type}_model"
-                model_module = importlib.import_module(module_path)
+                # 👇 Carga dinámica del modelo desde la carpeta 'models/'
+                try:
+                    model_instance = load_custom_model_class(project_path, model_type)
+                except Exception as e:
+                    logger.error(f"❌ Error al cargar el modelo '{model_type}': {e}")
+                    raise
 
-                booster, preds, metrics = model_module.train_model(X_train, y_train, X_test, y_test, params)
+                model, preds = model_instance.train(X_train, y_train, X_test, y_test, params)
 
                 input_example = X_train.iloc[:5]
-                output_example = predict_safely(booster, input_example)
+                output_example = predict_safely(model, input_example)
 
                 signature = mlflow.models.signature.infer_signature(input_example, output_example)
 
                 y_pred_binary = (preds >= 0.5).astype(int)
-
                 metrics_dict = evaluate_binary_classification(y_test, preds)
 
                 for metric_name, value in metrics_dict.items():
@@ -107,25 +109,23 @@ class MLflowExecutor(BaseExecutor):
                 for k, v in metrics_dict.items():
                     logger.info(f" - {k}: {v:.4f}")
 
-                logger.info(f"✅ Entrenamiento finalizado. AUC: {metrics_dict['auc']:.4f}")
+                logger.info(f"✅ Entrenamiento finalizado. AUC: {metrics_dict.get('auc', 0):.4f}")
 
                 all_metrics_passed = True
                 for metric in pipeline.metrics:
-                    metric_name = metric.name
-                    threshold = metric.threshold
-                    value = metrics_dict.get(metric_name)
+                    value = metrics_dict.get(metric.name)
                     if value is None:
-                        logger.warning(f"⚠️ Advertencia: métrica '{metric_name}' no fue calculada.")
+                        logger.warning(f"⚠️ Métrica '{metric.name}' no fue calculada.")
                         continue
-                    if value < threshold:
-                        logger.error(f"🚫 {metric_name.upper()} ({value:.4f}) por debajo del mínimo requerido ({threshold})")
+                    if value < metric.threshold:
+                        logger.error(f"🚫 {metric.name.upper()} ({value:.4f}) < {metric.threshold}")
                         all_metrics_passed = False
 
                 if all_metrics_passed:
                     log_model_generic(
-                        booster,
+                        model,
                         model_name="model",
-                        registered_model_name=f"{pipeline.name}-{pipeline.model.type}",
+                        registered_model_name=f"{pipeline.name}-{model_type}",
                         input_example=input_example,
                         signature=signature
                     )
@@ -135,8 +135,15 @@ class MLflowExecutor(BaseExecutor):
                         os.makedirs(os.path.dirname(output_path), exist_ok=True)
                         pd.DataFrame({"prediction": preds}).to_csv(output_path, index=False)
                         logger.info(f"📦 Predicciones guardadas en: {output_path}")
-                    break
-                
+
+                        result = ModelResult(
+                            model=model,
+                            predictions=preds,
+                            metrics=metrics_dict,
+                            output_path=output_path
+                        )
+                        return result
+
                 elif attempt < max_attempts - 1:
                     logger.warning(f"🔁 Reentrenando... (intento {attempt + 2}/{max_attempts})")
                 else:
@@ -146,7 +153,6 @@ class MLflowExecutor(BaseExecutor):
                     logger.info("   - Mejora la calidad del dataset")
                     logger.info("   - Prueba otros hiperparámetros")
                     return False
-
 
     def validate(self, pipeline: PipelineDefinition):
         from godml.core.validators import validate_pipeline

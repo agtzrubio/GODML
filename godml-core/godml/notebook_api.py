@@ -44,8 +44,10 @@ class GodmlNotebook:
         
         executor = get_executor(self.pipeline.provider)
         result = executor.run(self.pipeline)
-        # TODO: Capturar el modelo entrenado del executor
-        # self.last_trained_model = result.model
+
+        # ✅ Guardamos el modelo entrenado para uso posterior
+        self.last_trained_model = result.model
+
         return "✅ Entrenamiento completado"
     
     def save_model(self, model=None, model_name: str = None, environment: str = "experiments"):

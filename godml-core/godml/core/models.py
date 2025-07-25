@@ -1,5 +1,5 @@
-from typing import List, Optional, Dict
-from pydantic import BaseModel, Field
+from typing import List, Optional, Dict, Any
+from pydantic import BaseModel, Field , ConfigDict
 
 class DatasetConfig(BaseModel):
     uri: str
@@ -42,3 +42,11 @@ class PipelineDefinition(BaseModel):
     metrics: List[Metric]
     governance: Governance
     deploy: DeployConfig
+
+class ModelResult(BaseModel):
+    model: Any
+    predictions: Optional[Any] = None
+    metrics: Optional[Dict[str, float]] = None
+    output_path: Optional[str] = None
+
+    model_config = ConfigDict(arbitrary_types_allowed=True)

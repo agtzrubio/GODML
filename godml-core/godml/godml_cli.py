@@ -123,6 +123,15 @@ Observabilidad : Tracking completo con MLflow
 
 Declarativo : Configuración simple en YAML
 
+
+📦 Novedades en la versión 0.3.0
+
+- 🧪 Entrenamiento rápido desde notebooks con `GodmlNotebook`
+- 💾 Guardado y carga de modelos por entorno (`experiments`, `production`, etc.)
+- ⚡ Nuevas funciones `quick_train`, `train_from_yaml`, `quick_train_yaml` para acelerar iteraciones
+- 📄 Mejor integración con YAML, sin perder reproducibilidad
+
+
 📁 Estructura del Proyecto
                 
 {project_name}/
@@ -193,28 +202,68 @@ recall - Recall por clase
 f1 - F1 Score
 
 🎯 Flujo de Trabajo
-1. Preparar Datos
 
-# Coloca tu dataset en data/
+1. Preparar Datos
+Coloca tu dataset en data/
+
 cp mi_dataset.csv data/your_dataset.csv
 
 2. Configurar Pipeline
+Edita godml.yml según tus necesidades
 
-# Edita godml.yml según tus necesidades
 vim godml.yml
 
 3. Entrenar Modelo
+Ejecuta el pipeline completo
 
-# Ejecuta el pipeline completo
 godml run -f godml.yml
 
 4. Revisar Resultados
+Ver experimentos en MLflow
 
-# Ver experimentos en MLflow
 mlflow ui
 
-# Ver predicciones
+Ver predicciones
 cat outputs/predictions.csv
+
+
+🧪 Entrenamiento desde Notebooks
+
+from godml.notebook_api import GodmlNotebook
+
+godml = GodmlNotebook()
+godml.create_pipeline(
+    name="churn_rf",
+    model_type="random_forest",
+    hyperparameters={"max_depth": 3},
+    dataset_path="./data/churn.csv"
+)
+
+godml.train()
+godml.save_model(model_name="churn_rf", environment="experiments")
+
+⚡ Entrenamiento rápido con una línea
+
+from godml.notebook_api import quick_train
+
+quick_train(
+    model_type="xgboost",
+    hyperparameters={"eta": 0.1, "max_depth": 4},
+    dataset_path="./data/churn.csv"
+)
+
+🔁 Desde YAML (interactivo)
+
+from godml.notebook_api import train_from_yaml, quick_train_yaml
+
+train_from_yaml("./godml/godml.yml")
+
+quick_train_yaml(
+    model_type="random_forest",
+    hyperparameters={"max_depth": 4},
+    yaml_path="./godml/godml.yml"
+)
+
 
 🏛️ Gobernanza y Trazabilidad
 GODML automáticamente registra:
@@ -241,16 +290,14 @@ Monitorear: Revisa resultados en MLflow UI
 Iterar: Ajusta parámetros y vuelve a entrenar
 
 📚 Recursos Útiles
+
 📦 GODML en PyPI
 
-📖 Documentación GODML
+📖 Documentación oficial (próximamente)
 
-🎯 Configuración YAML
+🏛️ Guía de Gobernanza (en construcción)
 
-🏛️ Guía de Gobernanza
-
-🤝 Soporte
-¿Necesitas ayuda?
+💬 Soporte / Issues
 
 🐛 Reportar Issues
 

@@ -1,4 +1,4 @@
-name: random-forest-tst2-rf
+name: random-forest-custom-model
 version: 1.0.0
 provider: mlflow
 
@@ -7,33 +7,24 @@ dataset:
   hash: auto
 
 model:
-  type: xgboost  # ✅ esto debe coincidir con el nombre del archivo: xgboost_model.py
+  type: my_custom
   hyperparameters:
-    eta: 0.3
     max_depth: 5
-    objective: binary:logistic
-    eval_metric: logloss
+    n_estimators: 100
     random_state: 42
 
 metrics:
 - name: auc
-  threshold: 0.85
+  threshold: 0.6
 - name: accuracy
-  threshold: 0.80
-- name: precision
-  threshold: 0.75
-- name: recall
-  threshold: 0.70
-- name: f1
-  threshold: 0.75
+  threshold: 0.6
 
 governance:
-  owner: data-team@empresa.com
+  owner: "arturo@godml.ai"
   tags:
-  - compliance: gdpr
-  - compliance: hipaa
-  - project: retention
+  - source: "demo"
+  - model: "custom-rf"
 
 deploy:
   realtime: false
-  batch_output: ./outputs/churn_predictions_rf.csv
+  batch_output: ./outputs/predictions_custom_model.csv
