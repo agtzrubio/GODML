@@ -15,6 +15,7 @@ class Hyperparameters(BaseModel):
 
 class ModelConfig(BaseModel):
     type: str
+    source: Optional[str] = "core"  # por defecto 'core'
     hyperparameters: Hyperparameters
 
 class Metric(BaseModel):

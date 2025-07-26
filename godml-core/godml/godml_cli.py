@@ -103,7 +103,8 @@ deploy:
         f.write(godml_template)
     
     with open(project_path / "README.md", "w", encoding="utf-8") as f: 
-        f.write(f"""name: {project_name}
+        f.write("""
+name: project_name
 **Proyecto GODML - Machine Learning con Gobernanza**
 
 [![GODML](https://img.shields.io/badge/Powered%20by-GODML-blue.svg)](https://pypi.org/project/godml/)
@@ -134,7 +135,7 @@ Declarativo : Configuración simple en YAML
 
 📁 Estructura del Proyecto
                 
-{project_name}/
+project_name/
 ├── godml.yml              # 🎯 Configuración principal del pipeline
 ├── data/                  # 📊 Datasets
 │   └── your_dataset.csv   # ← Coloca aquí tus datos
@@ -180,7 +181,7 @@ Gobernanza
 governance:
   owner: your-team@company.com  # ← Cambia por tu email
   tags:
-  - project: {project_name}
+  - project: project_name
   - environment: development    # development/staging/production
 
 🔧 Modelos Disponibles
@@ -235,7 +236,7 @@ godml = GodmlNotebook()
 godml.create_pipeline(
     name="churn_rf",
     model_type="random_forest",
-    hyperparameters={"max_depth": 3},
+    hyperparameters="max_depth": 3,
     dataset_path="./data/churn.csv"
 )
 
@@ -248,7 +249,7 @@ from godml.notebook_api import quick_train
 
 quick_train(
     model_type="xgboost",
-    hyperparameters={"eta": 0.1, "max_depth": 4},
+    hyperparameters="eta": 0.1, "max_depth": 4,
     dataset_path="./data/churn.csv"
 )
 
@@ -260,7 +261,7 @@ train_from_yaml("./godml/godml.yml")
 
 quick_train_yaml(
     model_type="random_forest",
-    hyperparameters={"max_depth": 4},
+    hyperparameters="max_depth": 4,
     yaml_path="./godml/godml.yml"
 )
 
@@ -308,12 +309,13 @@ Iterar: Ajusta parámetros y vuelve a entrenar
 📄 Licencia
 Este proyecto está bajo la licencia MIT. Ver LICENSE para más detalles.
 
-Generado con ❤️ por GODML Framework v0.1.2
+Generado con ❤️ por GODML Framework v0.3.0
 Governed, Observable & Declarative Machine Learning
 """)
     
+    
     with open(project_path / "requirements.txt", "w") as f:
-        f.write("godml>=0.1.0\npandas>=1.3.0\nscikit-learn>=1.0.0\nxgboost>=1.5.0\nmlflow>=2.0.0")
+        f.write("godml>=0.3.0\npandas>=1.3.0\nscikit-learn>=1.0.0\nxgboost>=1.5.0\nmlflow>=2.0.0")
 
     logger.info(f"✅ Proyecto {project_name} creado exitosamente!")
     logger.info(f"📁 Ubicación: {project_path.absolute()}")

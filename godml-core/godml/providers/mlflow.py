@@ -86,13 +86,26 @@ class MLflowExecutor(BaseExecutor):
                     mlflow.log_param(param_name, param_value)
 
                 # 👇 Carga dinámica del modelo desde la carpeta 'models/'
+                source = getattr(pipeline.model, "source", "local")
                 try:
-                    model_instance = load_custom_model_class(project_path, model_type)
+                    model_instance = load_custom_model_class(project_path, model_type, source)
                 except Exception as e:
                     logger.error(f"❌ Error al cargar el modelo '{model_type}': {e}")
                     raise
 
-                model, preds = model_instance.train(X_train, y_train, X_test, y_test, params)
+                train_result = model_instance.train(X_train, y_train, X_test, y_test, params)
+
+                if isinstance(train_result, tuple):
+                    if len(train_result) == 3:
+                        model, preds, metrics_dict = train_result
+                    elif len(train_result) == 2:
+                        model, preds = train_result
+                        metrics_dict = evaluate_binary_classification(y_test, preds)
+                    else:
+                        raise ValueError("❌ El método 'train' retornó una tupla con longitud inesperada.")
+                else:
+                    raise ValueError("❌ El método 'train' debe retornar al menos (modelo, predicciones).")
+
 
                 input_example = X_train.iloc[:5]
                 output_example = predict_safely(model, input_example)

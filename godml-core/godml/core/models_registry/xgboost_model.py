@@ -1,18 +1,25 @@
+from godml.core.base_model_interface import BaseModel
 import xgboost as xgb
 from godml.core.metrics import evaluate_binary_classification
 
-def train_model(X_train, y_train, X_test, y_test, params):
-    dtrain = xgb.DMatrix(X_train, label=y_train)
-    dtest = xgb.DMatrix(X_test, label=y_test)
+class XgboostModel(BaseModel):
+    def __init__(self):
+        self.model = None
 
-    booster = xgb.train(params, dtrain, num_boost_round=100)
+    def train(self, X_train, y_train, X_test, y_test, params):
+        dtrain = xgb.DMatrix(X_train, label=y_train)
+        dtest = xgb.DMatrix(X_test, label=y_test)
 
-    # XGBoost ya devuelve probabilidades directamente
-    preds = booster.predict(dtest)
+        self.model = xgb.train(params, dtrain, num_boost_round=100)
+        preds = self.model.predict(dtest)
 
-    # Evalúa con las probabilidades
-    metrics = evaluate_binary_classification(y_test, preds)
+        metrics = evaluate_binary_classification(y_test, preds)
 
-    return booster, preds, metrics
+        return self.model, preds, metrics
 
-
+    def predict(self, X):
+        if self.model is None:
+            raise ValueError("Modelo no entrenado aún.")
+        
+        dmatrix = xgb.DMatrix(X)
+        return self.model.predict(dmatrix)
