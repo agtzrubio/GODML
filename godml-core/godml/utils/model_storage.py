@@ -1,7 +1,7 @@
 # Copyright (c) 2024 Arturo Gutierrez Rubio Rojas
 # Licensed under the MIT License
 
-import pickle
+import joblib
 import json
 from pathlib import Path
 from datetime import datetime
@@ -37,8 +37,11 @@ def save_model_to_structure(model, model_name: str = None, environment: str = "e
     model_path = env_path / model_filename
     
     # Guardar modelo con pickle
-    with open(model_path, 'wb') as f:
-        pickle.dump(model, f)
+    #with open(model_path, 'wb') as f:
+    #    pickle.dump(model, f)
+
+    # ✅ Guardar modelo con joblib
+    joblib.dump(model, model_path)
     
     # Crear enlace al más reciente
     latest_path = env_path / f"{model_name}_latest.pkl"
@@ -81,8 +84,11 @@ def load_model_from_structure(model_name: str, environment: str = "production"):
     if not model_path.exists():
         raise FileNotFoundError(f"Modelo no encontrado: {model_path}")
     
-    with open(model_path, 'rb') as f:
-        model = pickle.load(f)
+    #with open(model_path, 'rb') as f:
+    #    model = pickle.load(f)
+
+    # ✅ Cargar con joblib
+    model = joblib.load(model_path)
     
     print(f"✅ Modelo cargado: {model_path}")
     return model
